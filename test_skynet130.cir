@@ -1,0 +1,36 @@
+* ============================================================
+* Minimal SKY130 NMOS Test Circuit
+* Verifies that the PDK models load and simulate correctly.
+* ============================================================
+.title SKY130 NMOS Model Verification
+
+* Power supply
+VDD vdd 0 1.8
+
+* Include SKY130 PDK models
+.include "spice/sky130_models.spice"
+
+* NMOS transistor: W=4.0u L=2.0u (matches our M1 sizing)
+M1 drain gate source bulk sky130_fd_pr__nfet_01v8 W=4.0u L=2.0u
+
+* Gate bias: VGS = 0.62V (VTH + Vov = 0.42 + 0.20)
+VGS gate 0 DC 0.62
+
+* Source and bulk connected to ground
+VS source 0 DC 0
+VB bulk 0 DC 0
+
+* Drain load resistor
+RD vdd drain 100k
+
+* Operating point analysis
+.op
+
+.control
+op
+print all
+print @m1[id] @m1[vgs] @m1[vds] @m1[vth] @m1[gm] @m1[gds]
+quit
+.endc
+
+.end

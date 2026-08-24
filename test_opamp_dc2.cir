@@ -1,0 +1,83 @@
+* ============================================================
+* Testbench: Detailed DC Operating Point — Two-Stage Op-Amp
+* ============================================================
+.title DC Detailed OP — SKY130 Two-Stage Miller Op-Amp
+
+VDD vdd 0 1.8
+VSS vss 0 0
+
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+VCM vcm 0 DC 0.9
+VCMP vinp vcm DC 0
+VCMM vinn vcm DC 0
+
+CL vout 0 5p
+
+.op
+
+.control
+op
+echo "================================================"
+echo "  DETAILED DC OPERATING POINT"
+echo "================================================"
+echo ""
+echo "--- Node Voltages ---"
+print v(vout) xopamp.vout1 xopamp.vs xopamp.vb
+echo ""
+echo "--- Branch Currents ---"
+print vdd#branch vss#branch
+echo ""
+echo "--- M1 (diff pair) ---"
+print @m.xopamp.x1.msky130_fd_pr__nfet_01v8[id]
+print @m.xopamp.x1.msky130_fd_pr__nfet_01v8[vgs]
+print @m.xopamp.x1.msky130_fd_pr__nfet_01v8[vds]
+print @m.xopamp.x1.msky130_fd_pr__nfet_01v8[vth]
+print @m.xopamp.x1.msky130_fd_pr__nfet_01v8[gm]
+print @m.xopamp.x1.msky130_fd_pr__nfet_01v8[gds]
+echo ""
+echo "--- M3 (PMOS load) ---"
+print @m.xopamp.x3.msky130_fd_pr__pfet_01v8[id]
+print @m.xopamp.x3.msky130_fd_pr__pfet_01v8[vgs]
+print @m.xopamp.x3.msky130_fd_pr__pfet_01v8[vds]
+print @m.xopamp.x3.msky130_fd_pr__pfet_01v8[vth]
+print @m.xopamp.x3.msky130_fd_pr__pfet_01v8[gm]
+print @m.xopamp.x3.msky130_fd_pr__pfet_01v8[gds]
+echo ""
+echo "--- M5 (tail) ---"
+print @m.xopamp.x5.msky130_fd_pr__nfet_01v8[id]
+print @m.xopamp.x5.msky130_fd_pr__nfet_01v8[vgs]
+print @m.xopamp.x5.msky130_fd_pr__nfet_01v8[vds]
+print @m.xopamp.x5.msky130_fd_pr__nfet_01v8[vth]
+print @m.xopamp.x5.msky130_fd_pr__nfet_01v8[gm]
+echo ""
+echo "--- M6 (2nd stage NMOS) ---"
+print @m.xopamp.x6.msky130_fd_pr__nfet_01v8[id]
+print @m.xopamp.x6.msky130_fd_pr__nfet_01v8[vgs]
+print @m.xopamp.x6.msky130_fd_pr__nfet_01v8[vds]
+print @m.xopamp.x6.msky130_fd_pr__nfet_01v8[vth]
+print @m.xopamp.x6.msky130_fd_pr__nfet_01v8[gm]
+print @m.xopamp.x6.msky130_fd_pr__nfet_01v8[gds]
+echo ""
+echo "--- M7 (2nd stage PMOS load) ---"
+print @m.xopamp.x7.msky130_fd_pr__pfet_01v8[id]
+print @m.xopamp.x7.msky130_fd_pr__pfet_01v8[vgs]
+print @m.xopamp.x7.msky130_fd_pr__pfet_01v8[vds]
+print @m.xopamp.x7.msky130_fd_pr__pfet_01v8[vth]
+print @m.xopamp.x7.msky130_fd_pr__pfet_01v8[gm]
+print @m.xopamp.x7.msky130_fd_pr__pfet_01v8[gds]
+echo ""
+echo "--- M8 (bias) ---"
+print @m.xopamp.x8.msky130_fd_pr__pfet_01v8[id]
+print @m.xopamp.x8.msky130_fd_pr__pfet_01v8[vgs]
+print @m.xopamp.x8.msky130_fd_pr__pfet_01v8[vds]
+print @m.xopamp.x8.msky130_fd_pr__pfet_01v8[vth]
+echo ""
+echo "================================================"
+quit
+.endc
+
+.end

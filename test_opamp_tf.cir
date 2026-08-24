@@ -1,0 +1,29 @@
+* ============================================================
+* Testbench: Transfer Function (.tf) Analysis — Fixed
+* ============================================================
+.title Transfer Function — SKY130 Two-Stage Op-Amp
+
+VDD vdd 0 1.8
+VSS vss 0 0
+
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+VDC vinp 0 DC 0.9
+
+RFB vout vinn 1k
+CL vout 0 5p
+
+.tf V(vout) VDC
+
+.op
+
+.control
+op
+tf V(vout) VDC
+quit
+.endc
+
+.end

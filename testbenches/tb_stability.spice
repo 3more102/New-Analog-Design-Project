@@ -1,0 +1,110 @@
+* ============================================================
+* Testbench: Stability Analysis (Phase/Gain Margin)
+* ============================================================
+* Uses the "Middlebrook" or feedback-loop method for accurate
+* open-loop gain and phase measurement in a closed-loop config.
+*
+* Alternative: Direct AC analysis with large feedback resistor
+* to set the DC operating point while allowing AC open-loop
+* measurement.
+* ============================================================
+
+.title Stability/PM Testbench — Two-Stage Miller Op-Amp (SKY130)
+
+* === Power Supply ===
+VDD vdd 0 1.8
+VSS vss 0 0
+
+* === DUT ===
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+* === Input Stimulus ===
+* Non-inverting unity-gain configuration with AC injection
+* for open-loop gain/phase measurement
+*
+* Technique: Apply AC signal at the input, use a large
+* feedback resistor to set DC bias, measure open-loop response
+
+VDC vinp 0 DC 0.9 AC 1
+
+* AC excitation at positive input
+* (negative input connected via feedback for DC bias)
+
+* Unity-gain feedback with AC isolation
+* RFB provides DC feedback (sets VOUT_CM = VIN_CM)
+* but is large enough not to affect AC measurement
+RFB vout vinn 10meg
+
+* AC signal injection via small capacitor
+* (isolates DC while passing AC)
+CIN vinp vinn 1
+
+* === Load ===
+CL vout 0 5p
+
+* === Analysis ===
+* AC analysis from 1 Hz to 1 GHz
+.ac dec 200 1 1g
+
+* === Control ===
+.control
+ac dec 200 1 1g
+
+let gain_db = db(vout)
+let phase_deg = 180/PI * ph(vout)
+
+* Find key metrics
+meas ac dc_gain find gain_db at=10
+meas ac ugf_freq when gain_db=0
+meas ac phase_at_ugf find phase_deg at=ugf_freq
+meas ac gain_margin find gain_db when phase_deg=-180
+
+echo "================================================"
+echo "  STABILITY ANALYSIS RESULTS"
+echo "================================================"
+echo ""
+echo "  DC Gain (low freq):"
+print dc_gain
+echo ""
+echo "  Unity-Gain Frequency:"
+print ugf_freq
+echo ""
+echo "  Phase at UGF (PM = 180 + phase):"
+print phase_at_ugf
+
+let pm = 180 + phase_at_ugf
+echo ""
+echo "  Phase Margin:"
+print pm
+
+* Save data
+wrdata results/stability_mag.txt gain_db
+wrdata results/stability_phase.txt phase_deg
+wrdata results/stability_raw.txt vout
+
+* Bode plots
+set hcopydevtype=svg
+set hcopypscolor=1
+set color0=white
+set color1=black
+set color2=blue
+set color3=red
+
+set curplottitle="Stability: Gain"
+plot gain_db title "Open-Loop Gain (dB)" xlabel "Frequency (Hz)" ylabel "Gain (dB)"
+hardcopy results/stability_gain.svg gain_db
+
+set curplottitle="Stability: Phase"
+plot phase_deg title "Open-Loop Phase (deg)" xlabel "Frequency (Hz)" ylabel "Phase (deg)"
+hardcopy results/stability_phase.svg phase_deg
+
+quit
+.endc
+
+* === Output ===
+.print ac vout
+
+.end

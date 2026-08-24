@@ -1,0 +1,50 @@
+* ============================================================
+* Testbench: DC Operating Point — Two-Stage Miller Op-Amp
+* SKY130 PDK with real BSIM4 models
+* ============================================================
+.title DC Operating Point — SKY130 Two-Stage Miller Op-Amp
+
+* === Power Supply ===
+VDD vdd 0 1.8
+VSS vss 0 0
+
+* === Include SKY130 PDK Models ===
+.include "spice/sky130_models.spice"
+
+* === Include Op-Amp Subcircuit ===
+.include "spice/opamp_subcircuit.spice"
+
+* === DUT: Two-Stage Miller-Compensated Op-Amp ===
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+* === Input Stimulus ===
+* Common-mode at 0.9V (mid-rail)
+VCM vcm 0 DC 0.9
+VCMP vinp vcm DC 0
+VCMM vinn vcm DC 0
+
+* === Load ===
+CL vout 0 5p
+
+* === Analysis ===
+.op
+
+.control
+op
+echo "================================================"
+echo "  DC OPERATING POINT — SKY130 Two-Stage Op-Amp"
+echo "================================================"
+echo ""
+echo "--- Node Voltages ---"
+print v(vout) v(vcm) v(vinp) v(vinn)
+echo ""
+echo "--- Device Currents (branch currents) ---"
+print all
+echo ""
+echo "================================================"
+echo "  Simulation complete."
+echo "================================================"
+quit
+.endc
+
+.end

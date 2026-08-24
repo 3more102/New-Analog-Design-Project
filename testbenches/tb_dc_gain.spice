@@ -1,0 +1,79 @@
+* ============================================================
+* Testbench: DC Gain and Operating Point Analysis
+* ============================================================
+* Measures:
+*   - DC operating point (all transistor currents, voltages)
+*   - Open-loop DC gain (via DC sweep or .tf)
+*   - Output common-mode voltage
+* ============================================================
+
+.title DC Gain Testbench — Two-Stage Miller Op-Amp (SKY130)
+
+* === Power Supply ===
+VDD vdd 0 1.8
+VSS vss 0 0
+
+* === DUT: Two-Stage Miller-Compensated Op-Amp ===
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+* === Input Stimulus ===
+* Set common-mode to 0.9V (mid-rail) with tiny differential offset
+* for open-loop gain measurement via .tf
+VCM vcm 0 DC 0.9
+VCMP vinp vcm DC 0 DC 0    ; positive input at VCM
+VCMM vinn vcm DC 0 DC 0    ; negative input at VCM
+
+* Small differential signal for AC analysis
+VAC_P vinp vcm AC 0.5
+VAC_N vinn vcm AC -0.5
+
+* === Load ===
+CL vout 0 5p
+
+* === Analysis ===
+
+* Operating point
+.op
+
+* Transfer function (DC gain, poles, zeros)
+.tf V(vout) V(vcm)
+
+* DC sweep of common-mode input to find operating range
+.dc VCM 0.5 1.5 0.01
+
+* === Control ===
+.control
+op
+tf V(vout) V(vcm)
+dc VCM 0.5 1.5 0.01
+
+* Print key results
+echo "================================================"
+echo "  DC OPERATING POINT RESULTS"
+echo "================================================"
+echo ""
+print all
+
+* Extract and display key metrics
+let gain_db = db(vout/vcm)
+echo ""
+echo "  DC Gain (from .tf):"
+print gain_db
+
+* Save operating point data
+wrdata results/dc_op_point.txt vout vcm vinp vinn
+
+* Write DC sweep data
+wrdata results/dc_sweep.txt vout
+
+quit
+.endc
+
+* === Output ===
+.print dc vout vcm vinp vinn
+.print op vout vcm
+
+.end

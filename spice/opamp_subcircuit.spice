@@ -1,0 +1,42 @@
+* ============================================================
+* Two-Stage Miller-Compensated CMOS Op-Amp Subcircuit — v8
+* ============================================================
+* SKY130 PDK — 1.8V Supply
+*
+* REVISED: M6=6u to match M7=20u at mid-rail.
+* Account for µn/µp ≈ 4.2 and different Vov values.
+*
+* Pin Order: vinp, vinn, vout, vdd, vss
+* ============================================================
+
+.subckt opamp_two_stage vinp vinn vout vdd vss
+
+* === Internal Nodes ===
+* vs    = tail node
+* vb_p  = PMOS bias voltage
+* vb_n  = NMOS bias voltage
+* vout1 = first-stage output
+* vcm  = compensation node
+
+* === Stage 1: Differential Pair + Active Load ===
+X1 vout1 vinp vs vss sky130_fd_pr__nfet_01v8 W=4.0u L=2.0u
+X2 vout1 vinn vs vss sky130_fd_pr__nfet_01v8 W=4.0u L=2.0u
+X3 vout1 vout1 vdd vdd sky130_fd_pr__pfet_01v8 W=40.0u L=2.0u
+X4 vout1 vout1 vdd vdd sky130_fd_pr__pfet_01v8 W=40.0u L=2.0u
+X5 vs vb_n vss vss sky130_fd_pr__nfet_01v8 W=4.0u L=1.0u
+
+* === Stage 2: Common-Source + Active Load ===
+X6 vout vout1 vss vss sky130_fd_pr__nfet_01v8 W=6.0u L=1.0u
+X7 vout vb_p vdd vdd sky130_fd_pr__pfet_01v8 W=20.0u L=1.0u
+
+* === Bias Network ===
+X8 vb_p vb_p vdd vdd sky130_fd_pr__pfet_01v8 W=40.0u L=1.0u
+RBIAS_P vb_p vss 27k
+X9 vb_n vb_n vss vss sky130_fd_pr__nfet_01v8 W=4.0u L=1.0u
+RBIAS_N vdd vb_n 56k
+
+* === Miller Compensation ===
+CC vout1 vcm 1.5p
+RZ vcm vout 1.25k
+
+.ends opamp_two_stage

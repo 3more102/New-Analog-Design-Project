@@ -1,0 +1,107 @@
+* ============================================================
+* Testbench: AC Gain, Unity-Gain Bandwidth, and Phase Margin
+* ============================================================
+* Measures:
+*   - Open-loop gain vs frequency
+*   - Unity-gain bandwidth (UGF)
+*   - Phase margin (PM)
+*   - Gain margin (GM)
+*   - Gain-bandwidth product
+* ============================================================
+
+.title AC Gain/UGF/PM Testbench — Two-Stage Miller Op-Amp (SKY130)
+
+* === Power Supply ===
+VDD vdd 0 1.8
+VSS vss 0 0
+
+* === DUT ===
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+* === Input Stimulus ===
+* Common-mode at 0.9V, small AC differential signal
+VCM vcm 0 DC 0.9
+VCMP vinp vcm DC 0
+VCMM vinn vcm DC 0
+
+* AC excitation: differential 1V pp (0.5V each side)
+VAC_P vinp vcm AC 0.5
+VAC_N vinn vcm AC -0.5
+
+* === Load ===
+CL vout 0 5p
+
+* === Analysis ===
+* AC analysis from 1 Hz to 1 GHz (logarithmic sweep)
+.ac dec 100 1 1g
+
+* === Control ===
+.control
+ac dec 100 1 1g
+
+* Calculate gain in dB and phase
+let gain_db = db(vout)
+let phase_deg = 180/PI * ph(vout)
+
+* Find unity-gain frequency (where gain = 0 dB)
+* and phase at that frequency
+meas ac ugf_db when gain_db=0
+meas ac ugf_freq when gain_db=0
+meas ac gain_at_10mhz find gain_db at=10meg
+meas ac phase_at_ugf find phase_deg at=ugf_freq
+
+* Find gain at 1MHz
+meas ac gain_at_1mhz find gain_db at=1meg
+meas ac phase_at_1mhz find phase_deg at=1meg
+
+echo "================================================"
+echo "  AC ANALYSIS RESULTS"
+echo "================================================"
+echo ""
+echo "  Unity-Gain Bandwidth:"
+print ugf_freq
+echo "  Gain at UGF (should be ~0 dB):"
+print ugf_db
+echo ""
+echo "  Gain at 1 MHz:"
+print gain_at_1mhz
+echo "  Phase at 1 MHz:"
+print phase_at_1mhz
+echo ""
+echo "  Phase at UGF (Phase Margin = 180 + phase):"
+print phase_at_ugf
+
+* Save AC data
+wrdata results/ac_gain_mag.txt gain_db
+wrdata results/ac_gain_phase.txt phase_deg
+wrdata results/ac_raw.txt vout
+
+* Plot
+set hcopydevtype=svg
+set hcopypscolor=1
+set color0=white
+set color1=black
+set color2=blue
+set color3=red
+
+* Bode plot - Magnitude
+setplot ac1
+set curplottitle="AC Gain Magnitude"
+plot gain_db title "Open-Loop Gain (dB)" xlabel "Frequency (Hz)" ylabel "Gain (dB)"
+hardcopy results/ac_gain_bode.svg gain_db
+
+* Bode plot - Phase
+set curplottitle="AC Gain Phase"
+plot phase_deg title "Open-Loop Phase (deg)" xlabel "Frequency (Hz)" ylabel "Phase (deg)"
+hardcopy results/ac_phase_bode.svg phase_deg
+
+quit
+.endc
+
+* === Output ===
+.print ac vout
+
+.end

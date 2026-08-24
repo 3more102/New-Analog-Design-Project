@@ -1,0 +1,12 @@
+* Minimal test circuit
+.title ngspice batch mode test
+V1 vdd 0 DC 1.8
+R1 vdd out 10k
+C1 out 0 1p
+.op
+.control
+op
+print v(out) v(vdd)
+quit
+.endc
+.end

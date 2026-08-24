@@ -1,0 +1,22 @@
+* ============================================================
+* Bias Network Subcircuit
+* ============================================================
+* Generates bias voltage VB for the two-stage op-amp.
+*
+* Uses a diode-connected PMOS (M8) with resistor RBIAS
+* to generate a stable reference current of 20 µA.
+*
+* Pin Order: vb, vdd, vss
+* ============================================================
+
+.subckt bias_network vb vdd vss
+
+* Diode-connected PMOS reference
+M8 vb vb vdd vdd sky130_fd_pr__pfet_01v8 W=10.8u L=1.0u
+
+* Bias resistor: R = (VDD - VSG8) / I_REF
+* VSG8 = |VTHP| + |Vov8| = 0.42 + 0.25 = 0.67V
+* R = (1.8 - 0.67) / 20µA = 56.5 kΩ
+RBIAS vb vss 56.5k
+
+.ends bias_network

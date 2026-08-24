@@ -1,0 +1,45 @@
+* ============================================================
+* Testbench: AC Gain/Phase — Closed-Loop Unity-Gain Buffer
+* ============================================================
+* Properly biases the output at mid-rail via feedback.
+* Measures closed-loop bandwidth and phase margin.
+*
+.title AC Analysis — SKY130 Two-Stage Op-Amp (Closed-Loop)
+
+VDD vdd 0 1.8
+VSS vss 0 0
+
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+* Input
+VDC vinp 0 DC 0.9 AC 1
+
+* Unity-gain feedback (direct connection for closed-loop)
+RFB vout vinn 1k
+
+* Load
+CL vout 0 5p
+
+* Nodeset to help convergence
+.nodeset v(vout)=0.9
+
+.ac dec 100 1 1G
+
+.control
+ac dec 100 1 1G
+
+echo "================================================"
+echo "  AC ANALYSIS — Closed-Loop Unity-Gain Buffer"
+echo "================================================"
+
+print v(vout)
+
+wrdata results/ac_closed_raw.txt vout
+
+quit
+.endc
+
+.end

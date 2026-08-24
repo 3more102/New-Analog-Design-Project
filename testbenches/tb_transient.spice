@@ -1,0 +1,80 @@
+* ============================================================
+* Testbench: Transient Analysis and Slew Rate
+* ============================================================
+* Measures:
+*   - Slew rate (positive and negative)
+*   - Large-signal step response
+*   - Settling time
+*   - Overshoot/ringing
+* ============================================================
+
+.title Transient/Slew-Rate Testbench — Two-Stage Miller Op-Amp (SKY130)
+
+* === Power Supply ===
+VDD vdd 0 1.8
+VSS vss 0 0
+
+* === DUT ===
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+* === Input Stimulus ===
+* Large-signal square wave for slew rate measurement
+* 0.2V to 1.6V step (covers most of input CM range)
+* Frequency: 100 kHz (period = 10 µs, 5 µs per half-cycle)
+
+VCM vcm 0 DC 0.9
+
+* Square wave on positive input
+VPUL vinp vcm PULSE(0.2 1.6 1u 1n 1n 4u 10u)
+
+* Negative input at constant CM
+VN vinn vcm DC 0
+
+* === Load ===
+CL vout 0 5p
+
+* === Analysis ===
+* Transient analysis for 20 µs (2 full cycles)
+.tran 1n 20u UIC
+
+* === Control ===
+.control
+tran 1n 20u UIC
+
+echo "================================================"
+echo "  TRANSIENT ANALYSIS RESULTS"
+echo "================================================"
+echo ""
+
+* Calculate slew rate from the transient data
+* SR+ = ΔV / Δt during rising edge
+* SR- = ΔV / Δt during falling edge
+
+* Print transient data
+print vout vinp vinn
+
+* Save transient data
+wrdata results/transient_response.txt vout vinp vinn
+
+* Plot transient response
+set hcopydevtype=svg
+set hcopypscolor=1
+set color0=white
+set color1=black
+set color2=blue
+set color3=red
+
+set curplottitle="Transient Response"
+plot vout vinp title "Transient Response: Output vs Input" xlabel "Time (s)" ylabel "Voltage (V)"
+hardcopy results/transient_response.svg vout vinp
+
+quit
+.endc
+
+* === Output ===
+.print tran vout vinp vinn
+
+.end

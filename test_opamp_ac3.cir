@@ -1,0 +1,50 @@
+* ============================================================
+* Testbench: AC Gain/Phase with Unity-Gain Feedback
+* ============================================================
+* Uses large feedback resistor to set DC output at mid-rail
+* while allowing open-loop AC measurement.
+*
+* Technique: Non-inverting unity-gain with AC isolation.
+* RFB provides DC feedback (VOUT_CM = VIN_CM).
+* Large enough not to affect AC measurement.
+*
+.title AC Analysis — SKY130 Two-Stage Op-Amp (Unity-Gain FB)
+
+VDD vdd 0 1.8
+VSS vss 0 0
+
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+* Input: DC + AC at positive input
+VDC vinp 0 DC 0.9 AC 1
+
+* Unity-gain feedback: RFB from output to inverting input
+* Large value (100M) provides DC feedback without loading AC
+RFB vout vinn 100meg
+
+* Load
+CL vout 0 5p
+
+.ac dec 100 1 1G
+
+.control
+ac dec 100 1 1G
+
+echo "================================================"
+echo "  AC ANALYSIS — Unity-Gain Feedback Configuration"
+echo "================================================"
+
+* Print AC data at key frequencies
+echo ""
+echo "--- AC Output Voltage (Complex: Re, Im) ---"
+print v(vout)
+
+wrdata results/ac_ugfb_raw.txt vout
+
+quit
+.endc
+
+.end

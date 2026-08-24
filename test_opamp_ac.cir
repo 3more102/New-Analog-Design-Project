@@ -1,0 +1,57 @@
+* ============================================================
+* Testbench: AC Gain/Phase — Two-Stage Miller Op-Amp
+* ============================================================
+.title AC Gain/Phase — SKY130 Two-Stage Miller Op-Amp
+
+VDD vdd 0 1.8
+VSS vss 0 0
+
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+* Input: DC common-mode + small AC differential signal
+* Use single source per node with both DC and AC components
+VAC_P vinp 0 DC 0.9 AC 0.5
+VAC_N vinn 0 DC 0.9 AC -0.5
+
+* Load
+CL vout 0 5p
+
+.ac dec 100 1 1G
+
+.control
+ac dec 100 1 1G
+
+let gain_db = db(vout)
+let phase_deg = 180/PI * ph(vout)
+
+meas ac dc_gain find gain_db at=10
+meas ac ugf_freq when gain_db=0
+meas ac phase_at_ugf find phase_deg at=ugf_freq
+
+echo "================================================"
+echo "  AC ANALYSIS RESULTS"
+echo "================================================"
+echo ""
+echo "  DC Gain (low freq):"
+print dc_gain
+echo ""
+echo "  Unity-Gain Frequency:"
+print ugf_freq
+echo ""
+echo "  Phase at UGF:"
+print phase_at_ugf
+
+let pm = 180 + phase_at_ugf
+echo "  Phase Margin:"
+print pm
+
+wrdata results/ac_gain_mag.txt gain_db
+wrdata results/ac_gain_phase.txt phase_deg
+
+quit
+.endc
+
+.end

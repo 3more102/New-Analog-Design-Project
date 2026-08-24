@@ -1,0 +1,18 @@
+.title SKY130 NMOS Test - List all
+.include "spice/sky130_models.spice"
+
+VDD vdd 0 1.8
+X1 drain gate 0 0 sky130_fd_pr__nfet_01v8 W=4.0u L=2.0u
+VGS gate 0 DC 0.62
+RD vdd drain 100k
+
+.op
+.control
+op
+echo "=== Node Voltages ==="
+print v(drain) v(gate)
+echo "=== Device currents ==="
+print all
+quit
+.endc
+.end

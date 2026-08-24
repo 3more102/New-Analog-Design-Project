@@ -1,0 +1,17 @@
+.title SKY130 NMOS Test - Fixed device access
+.include "spice/sky130_models.spice"
+
+VDD vdd 0 1.8
+X1 drain gate 0 0 sky130_fd_pr__nfet_01v8 W=4.0u L=2.0u
+VGS gate 0 DC 0.62
+RD vdd drain 100k
+
+.op
+.control
+op
+echo "=== Operating Point ==="
+print v(drain) v(gate) v(0)
+print @m1[id] @m1[vgs] @m1[vds] @m1[vth] @m1[gm] @m1[gds]
+quit
+.endc
+.end

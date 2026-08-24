@@ -1,0 +1,29 @@
+.title SKY130 NMOS Verification - Full Operating Point
+.include "spice/sky130_models.spice"
+
+VDD vdd 0 1.8
+X1 drain gate 0 0 sky130_fd_pr__nfet_01v8 W=4.0u L=2.0u
+VGS gate 0 DC 0.62
+RD vdd drain 100k
+
+.op
+.control
+op
+echo "============================================"
+echo "  SKY130 NFET_01V8 Operating Point"
+echo "  W=4.0u L=2.0u, VGS=0.62V"
+echo "============================================"
+print v(drain) v(gate)
+print @m.x1.msky130_fd_pr__nfet_01v8[id]
+print @m.x1.msky130_fd_pr__nfet_01v8[vgs]
+print @m.x1.msky130_fd_pr__nfet_01v8[vds]
+print @m.x1.msky130_fd_pr__nfet_01v8[vth]
+print @m.x1.msky130_fd_pr__nfet_01v8[gm]
+print @m.x1.msky130_fd_pr__nfet_01v8[gds]
+print @m.x1.msky130_fd_pr__nfet_01v8[cgg]
+print @m.x1.msky130_fd_pr__nfet_01v8[cdd]
+print @m.x1.msky130_fd_pr__nfet_01v8[cgs]
+echo "============================================"
+quit
+.endc
+.end

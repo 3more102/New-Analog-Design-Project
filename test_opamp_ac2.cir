@@ -1,0 +1,54 @@
+* ============================================================
+* Testbench: AC Gain/Phase — Simplified
+* ============================================================
+.title AC Analysis — SKY130 Two-Stage Op-Amp
+
+VDD vdd 0 1.8
+VSS vss 0 0
+
+.include "spice/sky130_models.spice"
+.include "spice/opamp_subcircuit.spice"
+
+XOPAMP vinp vinn vout vdd vss opamp_two_stage
+
+VAC_P vinp 0 DC 0.9 AC 0.5
+VAC_N vinn 0 DC 0.9 AC -0.5
+
+CL vout 0 5p
+
+.ac dec 100 1 1G
+
+.control
+ac dec 100 1 1G
+
+echo "================================================"
+echo "  AC ANALYSIS — Gain and Phase at Key Frequencies"
+echo "================================================"
+
+echo ""
+echo "--- 10 Hz ---"
+print v(vout) magnitude
+print v(vout) phase
+
+echo ""
+echo "--- 1 kHz ---"
+print v(vout) magnitude
+
+echo ""
+echo "--- 1 MHz ---"
+print v(vout) magnitude
+
+echo ""
+echo "--- 10 MHz ---"
+print v(vout) magnitude
+
+echo ""
+echo "--- Full AC data ---"
+print v(vout)
+
+wrdata results/ac_raw.txt vout
+
+quit
+.endc
+
+.end

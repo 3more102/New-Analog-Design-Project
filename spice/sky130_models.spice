@@ -1,0 +1,49 @@
+* ============================================================
+* SKY130 PDK Combined Model Include for ngspice
+* ============================================================
+* Corner: TT (Typical-Typical)
+* Devices: nfet_01v8, pfet_01v8 only
+*
+* ALL slope/mismatch parameters initialized to 0 for nominal sim.
+* ============================================================
+
+* --- NFET slope parameters ---
+.param sky130_fd_pr__nfet_01v8__toxe_slope = 0.0
+.param sky130_fd_pr__nfet_01v8__toxe_slope_spectre = 0.0
+.param sky130_fd_pr__nfet_01v8__vth0_slope = 0.0
+.param sky130_fd_pr__nfet_01v8__vth0_slope1 = 0.0
+.param sky130_fd_pr__nfet_01v8__vth0_slope_spectre = 0.0
+.param sky130_fd_pr__nfet_01v8__voff_slope = 0.0
+.param sky130_fd_pr__nfet_01v8__voff_slope_spectre = 0.0
+
+* --- PFET slope parameters ---
+.param sky130_fd_pr__pfet_01v8__toxe_slope = 0.0
+.param sky130_fd_pr__pfet_01v8__toxe_slope1 = 0.0
+.param sky130_fd_pr__pfet_01v8__toxe_slope_spectre = 0.0
+.param sky130_fd_pr__pfet_01v8__vth0_slope = 0.0
+.param sky130_fd_pr__pfet_01v8__vth0_slope1 = 0.0
+.param sky130_fd_pr__pfet_01v8__vth0_slope_spectre = 0.0
+.param sky130_fd_pr__pfet_01v8__voff_slope = 0.0
+.param sky130_fd_pr__pfet_01v8__voff_slope1 = 0.0
+.param sky130_fd_pr__pfet_01v8__voff_slope_spectre = 0.0
+.param sky130_fd_pr__pfet_01v8__nfactor_slope = 0.0
+.param sky130_fd_pr__pfet_01v8__nfactor_slope1 = 0.0
+.param sky130_fd_pr__pfet_01v8__nfactor_slope_spectre = 0.0
+
+* --- PFET mismatch/diff parameters ---
+.param sky130_fd_pr__pfet_01v8__ku0_diff = 0.0
+.param sky130_fd_pr__pfet_01v8__kvsat_diff = 0.0
+.param sky130_fd_pr__pfet_01v8__kvth0_diff = 0.0
+.param sky130_fd_pr__pfet_01v8__lku0_diff = 0.0
+.param sky130_fd_pr__pfet_01v8__lkvth0_diff = 0.0
+.param sky130_fd_pr__pfet_01v8__wku0_diff = 0.0
+.param sky130_fd_pr__pfet_01v8__wkvth0_diff = 0.0
+.param sky130_fd_pr__pfet_01v8__wlod_diff = 0.0
+
+* --- Include TT corner models (nfet_01v8) ---
+.include "C:/Users/omar/pdk/sky130A/cells/nfet_01v8/sky130_fd_pr__nfet_01v8__tt.corner.spice"
+
+* --- Include TT corner models (pfet_01v8) ---
+.include "C:/Users/omar/pdk/sky130A/cells/pfet_01v8/sky130_fd_pr__pfet_01v8__tt.corner.spice"
+
+* ============================================================
