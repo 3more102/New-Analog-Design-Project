@@ -1,0 +1,47 @@
+name: PTAT SKY130 CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PDK_ROOT: /home/runner/pdk
+      PDK_VERSION: 12df12e2e74145e31c5a13de02f9a1e176b56e67
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ngspice
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ngspice
+          ngspice -v
+
+      - name: Install pinned SKY130 PDK
+        uses: TinyTapeout/volare-action@a81950837885dbfeb37f8405fe90e7d047cf3f62
+        with:
+          pdk_name: sky130
+          pdk_version: 12df12e2e74145e31c5a13de02f9a1e176b56e67
+          pdk_root: /home/runner/pdk
+
+      - name: Record tool and PDK environment
+        run: |
+          python --version
+          ngspice -v
+          find "$PDK_ROOT" -name sky130.lib.spice -print
+
+      - name: Run PTAT TT/FF/SS simulations
+        run: python ptat_ci/run_sky130_ci.py
+
+      - name: Upload raw PTAT evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ptat-sky130-evidence
+          path: ptat_ci/results/
+          if-no-files-found: error
